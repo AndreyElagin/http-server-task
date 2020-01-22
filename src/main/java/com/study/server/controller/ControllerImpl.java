@@ -1,57 +1,45 @@
 package com.study.server.controller;
 
 import com.study.server.http.HttpRequest;
-import com.study.server.http.Response;
-import com.study.server.http.StatusCode;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.List;
+import com.study.server.http.HttpResponse;
 
 public class ControllerImpl implements Controller {
-    List<String> indexHtmlFilesPaths;
-    String truePath;
+    String host;
+    String path;
 
-    public ControllerImpl(List<String> indexHtmlFilesPaths) {
-        this.indexHtmlFilesPaths = indexHtmlFilesPaths;
+    public ControllerImpl(String host, String path) {
+        this.host = host;
+        this.path = path;
     }
 
     @Override
     public boolean match(HttpRequest request) {
-        String host = request.getHost();
+        String requestHost = request.getHost();
 
-        for (String path : indexHtmlFilesPaths) {
-            if (path.contains(host)) {
-                truePath = path;
-                return true;
-            }
-        }
-
-        return false;
+        return host.equals(requestHost);
     }
 
     @Override
-    public Response handle(HttpRequest request) {
-        Response response = new Response();
-        StringBuffer buf = new StringBuffer();
-
-        try {
-            FileInputStream file = new FileInputStream(truePath);
-
-            int c;
-            while ((c = file.read()) != -1) {
-                buf.append((char) c);
-            }
-
-            response.setResponseCode(StatusCode._200);
-            response.addHeader("Content-Type", "text/html");
-            response.addBody(buf.toString());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public HttpResponse handle(HttpRequest request) {
+        HttpResponse response = new HttpResponse();
+//        StringBuffer buf = new StringBuffer();
+//
+//        try {
+//            FileInputStream file = new FileInputStream(path);
+//
+//            int c;
+//            while ((c = file.read()) != -1) {
+//                buf.append((char) c);
+//            }
+//
+//            response.setResponseCode(StatusCode._200);
+//            response.addHeader("Content-Type", "text/html");
+//            response.addBody(buf.toString());
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         return response;
     }

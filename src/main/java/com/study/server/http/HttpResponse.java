@@ -3,12 +3,12 @@ package com.study.server.http;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Response {
+public class HttpResponse {
     private StatusCode statusCode;
     private Map<String, String> headers = new HashMap<>();
     private String body;
 
-    public Response() {
+    public HttpResponse() {
     }
 
     public void setResponseCode(StatusCode statusCode) {

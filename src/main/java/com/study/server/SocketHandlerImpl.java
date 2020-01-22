@@ -1,8 +1,9 @@
 package com.study.server;
 
+import com.study.server.exceptions.BadRequestException;
 import com.study.server.http.HttpRequest;
 import com.study.server.http.HttpRequestParser;
-import com.study.server.http.Response;
+import com.study.server.http.HttpResponse;
 import com.study.server.http.StatusCode;
 
 import java.io.IOException;
@@ -12,44 +13,34 @@ import java.net.Socket;
 import java.util.Map;
 
 public class SocketHandlerImpl implements SocketHandler, Runnable {
-    private Socket clientSocket;
-    InputStream in = null;
-    OutputStream out = null;
+    private InputStream in;
+    private OutputStream out;
 
     public SocketHandlerImpl(Socket clientSocket) {
-        this.clientSocket = clientSocket;
+        try {
+            this.in = clientSocket.getInputStream();
+            this.out = clientSocket.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void run() {
         try {
-            in = clientSocket.getInputStream();
-            out = clientSocket.getOutputStream();
             HttpRequest request = HttpRequestParser.parse(in);
+            HttpResponse response = RequestDispatcherImpl.dispatch(request);
+            sendResponse(response);
 
-//            if (!parser.parse(inputLine)) {
-//                respond(500, "Unable to parse request", out);
-//                return;
-//            }
-
-            RequestDispatcherImpl dispatcher = new RequestDispatcherImpl(request);
-//            response = dispatcher.dispatch();
-//            sendResponse(response);
-
-
-//            File myFile = new File(sitesAndConfigDirectory + "\\www.food.com\\index.html");
-//            byte[] myByteArray = new byte[(int) myFile.length()];
-//
-//            FileInputStream fis = new FileInputStream(myFile);
-//            BufferedInputStream bis = new BufferedInputStream(fis);
-//            bis.read(myByteArray);
-//
-//            out.write(("HTTP/1.1 200 OK" + "\r\n\r\n").getBytes());
-//            out.write(myByteArray);
-//
-//            out.close();
-//            System.out.println("File is transferred");
-//            in.close();
+            out.close();
+            System.out.println("File is transferred");
+            in.close();
+        } catch (BadRequestException e) {
+            try {
+                respond(500, "Unable to parse request", out);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,21 +51,25 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
         out.write(responseLine.getBytes());
     }
 
-    public void sendResponse(Response response) throws IOException {
+    private void sendResponse(HttpResponse response) {
         Map<String, String> headers = response.getHeaders();
         StatusCode statusCode = response.getStatusCode();
         String body = response.getBody();
         headers.put("Connection", "Close");
-        out.write(("HTTP/1.1 " + statusCode + "\r\n").getBytes());
+        try {
+            out.write(("HTTP/1.1 " + statusCode + "\r\n").getBytes());
 
-        for (String headerName : headers.keySet()) {
-            out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
-        }
+            for (String headerName : headers.keySet()) {
+                out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
+            }
 
-        out.write("\r\n".getBytes());
+            out.write("\r\n".getBytes());
 
-        if (body != null) {
-            out.write(body.getBytes());
+            if (body != null) {
+                out.write(body.getBytes());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
