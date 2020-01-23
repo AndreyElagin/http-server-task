@@ -11,11 +11,13 @@ public class Main {
         ConfigurationReaderImpl cr = new ConfigurationReaderImpl();
         ServerConfiguration config = cr.readConfig();
         Map<String, String> mappings = cr.readMappings();
-
         Set<ControllerImpl> controllers = getControllers(mappings);
-        RequestDispatcher requestDispatcher = new RequestDispatcherImpl(controllers);
 
-        HttpServerImpl server = new HttpServerImpl(config);
+        RequestDispatcher requestDispatcher = new RequestDispatcherImpl(controllers);
+        SocketHandlerFactory socketHandlerFactory = new SocketHandlerFactory(requestDispatcher);
+
+
+        HttpServerImpl server = new HttpServerImpl(config, socketHandlerFactory);
         server.start();
     }
 

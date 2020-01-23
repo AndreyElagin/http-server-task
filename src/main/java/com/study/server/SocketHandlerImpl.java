@@ -15,8 +15,10 @@ import java.util.Map;
 public class SocketHandlerImpl implements SocketHandler, Runnable {
     private InputStream in;
     private OutputStream out;
+    private RequestDispatcher requestDispatcher;
 
-    public SocketHandlerImpl(Socket clientSocket) {
+    public SocketHandlerImpl(Socket clientSocket, RequestDispatcher requestDispatcher) {
+        this.requestDispatcher = requestDispatcher;
         try {
             this.in = clientSocket.getInputStream();
             this.out = clientSocket.getOutputStream();
@@ -29,11 +31,10 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
     public void run() {
         try {
             HttpRequest request = HttpRequestParser.parse(in);
-            HttpResponse response = RequestDispatcherImpl.dispatch(request);
+            HttpResponse response = requestDispatcher.dispatch(request);
             sendResponse(response);
 
             out.close();
-            System.out.println("File is transferred");
             in.close();
         } catch (BadRequestException e) {
             try {

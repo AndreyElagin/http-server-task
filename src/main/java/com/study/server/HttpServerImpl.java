@@ -12,11 +12,13 @@ public class HttpServerImpl implements HttpServer {
     private boolean isStopped = false;
     private ServerSocket serverSocket = null;
     private ExecutorService executor;
+    private SocketHandlerFactory socketHandlerFactory;
 
-    public HttpServerImpl(ServerConfiguration config) {
+    public HttpServerImpl(ServerConfiguration config, SocketHandlerFactory socketHandlerFactory) {
         this.port = config.getPort();
         this.poolSize = config.getPoolSize();
         this.executor = Executors.newFixedThreadPool(poolSize);
+        this.socketHandlerFactory = socketHandlerFactory;
     }
 
     @Override
@@ -39,7 +41,7 @@ public class HttpServerImpl implements HttpServer {
                 throw new RuntimeException(
                         "Error accepting client connection", e);
             }
-            this.executor.execute(new SocketHandlerImpl(clientSocket));
+            this.executor.execute(socketHandlerFactory.createSocketHandler(clientSocket));
         }
         this.executor.shutdown();
         System.out.println("Server stopped");

@@ -14,7 +14,8 @@ public class RequestDispatcherImpl implements RequestDispatcher {
         this.controllers = controllers;
     }
 
-    public static HttpResponse dispatch(HttpRequest request) {
+    @Override
+    public HttpResponse dispatch(HttpRequest request) {
         HttpResponse response;
 
         return new HttpResponse();
