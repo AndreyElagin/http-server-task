@@ -29,7 +29,7 @@ public class HttpRequestGenerator {
         var hostGen = host.orElse("food.com");
         var portGen = port.orElse("80");
 
-        return new HttpRequest.Builder()
+        return new HttpRequest.RequestBuilder()
                 .setMethod(methodGen)
                 .setPath(pathGen)
                 .setQueryParameters(queryGen)

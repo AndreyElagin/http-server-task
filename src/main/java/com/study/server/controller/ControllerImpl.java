@@ -2,6 +2,9 @@ package com.study.server.controller;
 
 import com.study.server.http.HttpRequest;
 import com.study.server.http.HttpResponse;
+import com.study.server.http.StatusCode;
+
+import java.util.Map;
 
 public class ControllerImpl implements Controller {
     String host;
@@ -21,7 +24,12 @@ public class ControllerImpl implements Controller {
 
     @Override
     public HttpResponse handle(HttpRequest request) {
-        HttpResponse response = new HttpResponse();
+        HttpResponse.ResponseBuilder builder = new HttpResponse.ResponseBuilder();
+        builder.setProtocol("HTTP/1.1")
+                .setStatusCode(StatusCode._404)
+                .setHeaders(Map.of())
+                .setBody("body");
+        HttpResponse response = new HttpResponse(builder);
 //        StringBuffer buf = new StringBuffer();
 //
 //        try {

@@ -53,12 +53,12 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
     }
 
     private void sendResponse(HttpResponse response) {
-        Map<String, String> headers = response.getHeaders();
+        String protocol = response.getProtocol();
         StatusCode statusCode = response.getStatusCode();
+        Map<String, String> headers = response.getHeaders();
         String body = response.getBody();
-        headers.put("Connection", "Close");
         try {
-            out.write(("HTTP/1.1 " + statusCode + "\r\n").getBytes());
+            out.write((protocol + " " + statusCode + "\r\n").getBytes());
 
             for (String headerName : headers.keySet()) {
                 out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
