@@ -26,7 +26,7 @@ public class ControllerImpl implements Controller {
     public HttpResponse handle(HttpRequest request) {
         HttpResponse.ResponseBuilder builder = new HttpResponse.ResponseBuilder();
         builder.setProtocol("HTTP/1.1")
-                .setStatusCode(StatusCode._404)
+                .setStatusCode(StatusCode._404.toString())
                 .setHeaders(Map.of())
                 .setBody("body");
         HttpResponse response = new HttpResponse(builder);

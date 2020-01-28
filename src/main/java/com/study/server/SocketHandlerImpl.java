@@ -4,7 +4,6 @@ import com.study.server.exceptions.BadRequestException;
 import com.study.server.http.HttpRequest;
 import com.study.server.http.HttpRequestParser;
 import com.study.server.http.HttpResponse;
-import com.study.server.http.StatusCode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +53,7 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
 
     private void sendResponse(HttpResponse response) {
         String protocol = response.getProtocol();
-        StatusCode statusCode = response.getStatusCode();
+        String statusCode = response.getStatusCode();
         Map<String, String> headers = response.getHeaders();
         String body = response.getBody();
         try {

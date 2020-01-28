@@ -20,7 +20,7 @@ public class RequestDispatcherImpl implements RequestDispatcher {
     public HttpResponse dispatch(HttpRequest request) {
         HttpResponse.ResponseBuilder builder = new HttpResponse.ResponseBuilder();
         builder.setProtocol("HTTP/1.1")
-                .setStatusCode(StatusCode._404)
+                .setStatusCode(StatusCode._404.toString())
                 .setHeaders(Map.of())
                 .setBody("body");
         return new HttpResponse(builder);

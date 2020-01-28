@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class HttpResponse {
     private final String protocol;
-    private final StatusCode statusCode;
+    private final String statusCode;
     private final Map<String, String> headers;
     private final String body;
 
@@ -20,7 +20,7 @@ public class HttpResponse {
         return protocol;
     }
 
-    public StatusCode getStatusCode() {
+    public String getStatusCode() {
         return statusCode;
     }
 
@@ -36,11 +36,12 @@ public class HttpResponse {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        HttpResponse that = (HttpResponse) o;
-        return Objects.equals(protocol, that.protocol) &&
-                statusCode == that.statusCode &&
-                Objects.equals(headers, that.headers) &&
-                Objects.equals(body, that.body);
+        HttpResponse response = (HttpResponse) o;
+
+        return Objects.equals(protocol, response.protocol) &&
+                Objects.equals(statusCode, response.statusCode) &&
+                Objects.equals(headers, response.headers) &&
+                Objects.equals(body, response.body);
     }
 
     @Override
@@ -48,10 +49,9 @@ public class HttpResponse {
         return Objects.hash(protocol, statusCode, headers, body);
     }
 
-
     public static class ResponseBuilder {
         private String protocol;
-        private StatusCode statusCode;
+        private String statusCode;
         private Map<String, String> headers;
         private String body;
 
@@ -63,7 +63,7 @@ public class HttpResponse {
             return this;
         }
 
-        public ResponseBuilder setStatusCode(StatusCode statusCode) {
+        public ResponseBuilder setStatusCode(String statusCode) {
             this.statusCode = statusCode;
             return this;
         }

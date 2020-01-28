@@ -8,11 +8,18 @@ import com.study.server.http.StatusCode;
 import java.util.Map;
 
 public class RequestDispatcherMock implements RequestDispatcher {
+    static String methodName;
+    static String className;
+
     public RequestDispatcherMock() {
     }
 
     @Override
     public HttpResponse dispatch(HttpRequest request) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        methodName = stackTrace[2].getMethodName();
+        className = stackTrace[2].getClassName();
+
         final Map<String, String> headers = Map.of(
                 "Server", "Apache",
                 "Content-Language", "ru",
@@ -33,9 +40,13 @@ public class RequestDispatcherMock implements RequestDispatcher {
                 "</html>";
         HttpResponse.ResponseBuilder builder = new HttpResponse.ResponseBuilder();
         builder.setProtocol("HTTP/1.1")
-                .setStatusCode(StatusCode._200)
+                .setStatusCode(StatusCode._200.toString())
                 .setHeaders(headers)
                 .setBody(body);
         return new HttpResponse(builder);
+    }
+
+    public String getCallingMethod() {
+        return className + "." + methodName;
     }
 }

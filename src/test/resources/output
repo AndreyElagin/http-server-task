@@ -1,7 +1,7 @@
 HTTP/1.1 200 OK
+Content-Language: ru
 Server: Apache
 Content-Type: text/html; charset=utf-8
-Content-Language: ru
 
 <!DOCTYPE html>
 <html lang="en">

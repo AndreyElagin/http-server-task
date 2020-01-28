@@ -1,57 +1,55 @@
 package com.study.server;
 
+import com.study.server.http.HttpRequest;
+import com.study.server.http.HttpRequestParser;
+import com.study.server.http.HttpResponse;
+import com.study.server.utils.HttpResponseParser;
 import com.study.server.utils.RequestDispatcherMock;
+import com.study.server.utils.SocketMock;
+import com.study.server.utils.TestUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.Socket;
 
-import static com.study.server.utils.TestUtils.readFile;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SocketHandlerImplTest {
 
     @Test
-    @DisplayName("xxx")
-    void test() throws IOException {
-//        тебе надо как то проверить:
-//        а) то что вызов был передан в реквест диспатчер
-
-        Socket clientSocket = new Socket() {
-            @Override
-            public InputStream getInputStream() throws IOException {
-                return readFile("GET");
-            }
-
-            @Override
-            public OutputStream getOutputStream() throws IOException {
-                File file = new File(System.getProperty("user.dir") + "\\src\\test\\resources\\output");
-                file.delete();
-                OutputStream os = new FileOutputStream(file) {
-
-                    @Override
-                    public void write(int b) throws IOException {
-                    }
-                };
-
-                return os;
-            }
-        };
-
+    @DisplayName("The method calling RequestDispatcherMock should be com.study.server.SocketHandlerImpl.run")
+    void test1() {
+        SocketMock socketMock = new SocketMock();
+        Socket clientSocket = socketMock.getClientSocket();
         RequestDispatcherMock rd = new RequestDispatcherMock();
         SocketHandlerImpl sh = new SocketHandlerImpl(clientSocket, rd);
+        String expectedCallingMethod = "com.study.server.SocketHandlerImpl.run";
+
+        sh.run();
+
+        assertEquals(expectedCallingMethod, rd.getCallingMethod());
+    }
+
+    @Test
+    @DisplayName("Passed SocketHandlerImpl to OutputStream HttpResponse should be equal to expected")
+    void test2() throws IOException {
+        SocketMock socketMock = new SocketMock();
+        Socket clientSocket = socketMock.getClientSocket();
+        RequestDispatcher rd = new RequestDispatcherMock();
+        SocketHandlerImpl sh = new SocketHandlerImpl(clientSocket, rd);
+
+        HttpRequest requestMock = HttpRequestParser.parse(TestUtils.readFile("GET"));
+        HttpResponse expectedResponse = rd.dispatch(requestMock);
 
         sh.run();
 
         File file = new File(System.getProperty("user.dir") + "\\src\\test\\resources\\output");
         var in = new FileInputStream(file);
-        var br = new BufferedReader(new InputStreamReader(in));
-        StringBuilder sb = new StringBuilder();
-        var curLine = br.readLine();
-        while (curLine != null) {
-            sb.append(curLine + "\r\n");
-            curLine = br.readLine();
-        }
-        System.out.println(sb);
+        HttpResponse response = HttpResponseParser.parse(in);
+
+        assertEquals(expectedResponse, response);
     }
 }
