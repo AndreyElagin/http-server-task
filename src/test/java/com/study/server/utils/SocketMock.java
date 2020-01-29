@@ -10,22 +10,22 @@ import java.net.Socket;
 import static com.study.server.utils.TestUtils.readFile;
 
 public class SocketMock extends Socket {
-    private final String fileName;
+    private final String requestFileName;
 
-    public SocketMock(String fileName) {
-        this.fileName = fileName;
+    public SocketMock(String requestFileName) {
+        this.requestFileName = requestFileName;
     }
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return readFile(fileName);
+        return readFile(requestFileName);
     }
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        File file = new File(System.getProperty("user.dir") + "\\src\\test\\resources\\output");
-        file.delete();
-        OutputStream os = new FileOutputStream(file) {
+        File responseFileName = new File(System.getProperty("user.dir") + "\\src\\test\\resources\\output");
+        responseFileName.delete();
+        OutputStream os = new FileOutputStream(responseFileName) {
 
             @Override
             public void write(int b) throws IOException {

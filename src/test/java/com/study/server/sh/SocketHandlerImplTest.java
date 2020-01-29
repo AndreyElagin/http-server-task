@@ -1,5 +1,7 @@
-package com.study.server;
+package com.study.server.sh;
 
+import com.study.server.RequestDispatcher;
+import com.study.server.SocketHandlerImpl;
 import com.study.server.http.HttpRequest;
 import com.study.server.http.HttpRequestParser;
 import com.study.server.http.HttpResponse;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
@@ -62,6 +65,12 @@ class SocketHandlerImplTest {
 
         sh.run();
 
+        String responseLine = getResponseLineFromFile();
+
+        assertEquals(expectedResponseLine, responseLine);
+    }
+
+    private String getResponseLineFromFile() throws IOException {
         File file = new File(System.getProperty("user.dir") + "\\src\\test\\resources\\output");
         var in = new FileInputStream(file);
         var br = new BufferedReader(new InputStreamReader(in));
@@ -73,8 +82,6 @@ class SocketHandlerImplTest {
             curLine = br.readLine();
         }
 
-        String responseLine = sb.toString();
-
-        assertEquals(expectedResponseLine, responseLine);
+        return sb.toString();
     }
 }
