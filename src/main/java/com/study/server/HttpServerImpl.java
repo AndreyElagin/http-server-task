@@ -14,25 +14,25 @@ public class HttpServerImpl implements HttpServer {
     private ExecutorService executor;
     private SocketHandlerFactory socketHandlerFactory;
 
-    public HttpServerImpl(ServerConfiguration config, SocketHandlerFactory socketHandlerFactory) {
-        this.port = config.getPort();
-        this.poolSize = config.getPoolSize();
-        this.executor = Executors.newFixedThreadPool(poolSize);
-        this.socketHandlerFactory = socketHandlerFactory;
+    public HttpServerImpl(ServerConfiguration config, SocketHandlerFactory shf) {
+        port = config.getPort();
+        poolSize = config.getPoolSize();
+        executor = Executors.newFixedThreadPool(poolSize);
+        socketHandlerFactory = shf;
     }
 
     @Override
     public void start() {
         try {
-            this.serverSocket = new ServerSocket(this.port);
+            serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            throw new RuntimeException("Cannot open port " + this.port, e);
+            throw new RuntimeException("Cannot open port " + port, e);
         }
 
         while (!isStopped()) {
             Socket clientSocket = null;
             try {
-                clientSocket = this.serverSocket.accept();
+                clientSocket = serverSocket.accept();
             } catch (IOException e) {
                 if (isStopped()) {
                     System.out.println("Server stopped");
@@ -41,20 +41,20 @@ public class HttpServerImpl implements HttpServer {
                 throw new RuntimeException(
                         "Error accepting client connection", e);
             }
-            this.executor.execute(socketHandlerFactory.createSocketHandler(clientSocket));
+            executor.execute(socketHandlerFactory.createSocketHandler(clientSocket));
         }
-        this.executor.shutdown();
+        executor.shutdown();
         System.out.println("Server stopped");
     }
 
     private synchronized boolean isStopped() {
-        return this.isStopped;
+        return isStopped;
     }
 
     public synchronized void stop() {
-        this.isStopped = true;
+        isStopped = true;
         try {
-            this.serverSocket.close();
+            serverSocket.close();
         } catch (IOException e) {
             throw new RuntimeException("Error closing server", e);
         }

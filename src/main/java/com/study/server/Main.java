@@ -2,7 +2,7 @@ package com.study.server;
 
 import com.study.server.controller.ControllerImpl;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,15 +22,9 @@ public class Main {
     }
 
     private static Set<ControllerImpl> getControllers(Map<String, String> mappings) {
-        Set<ControllerImpl> controllers = Collections.emptySet();
+        Set<ControllerImpl> controllers = new HashSet<>();
 
-        for (Map.Entry<String, String> entry : mappings.entrySet()) {
-            String host = entry.getKey();
-            String path = entry.getValue();
-
-            ControllerImpl controller = new ControllerImpl(host, path);
-            controllers.add(controller);
-        }
+        mappings.forEach((k, v) -> controllers.add(new ControllerImpl(k, v)));
 
         return Set.copyOf(controllers);
     }
