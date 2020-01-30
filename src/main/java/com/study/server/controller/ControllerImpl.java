@@ -25,11 +25,11 @@ public class ControllerImpl implements Controller {
     @Override
     public HttpResponse handle(HttpRequest request) {
         HttpResponse.ResponseBuilder builder = new HttpResponse.ResponseBuilder();
-        builder.setProtocol("HTTP/1.1")
+        HttpResponse response = builder.setProtocol("HTTP/1.1")
                 .setStatusCode(StatusCode._404.toString())
                 .setHeaders(Map.of())
-                .setBody("body");
-        HttpResponse response = new HttpResponse(builder);
+                .setBody("body")
+                .build();
 //        StringBuffer buf = new StringBuffer();
 //
 //        try {

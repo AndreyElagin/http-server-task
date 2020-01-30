@@ -8,48 +8,63 @@ import com.study.server.http.HttpResponse;
 import com.study.server.utils.HttpResponseParser;
 import com.study.server.utils.RequestDispatcherMock;
 import com.study.server.utils.SocketMock;
-import com.study.server.utils.TestUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+import static com.study.server.utils.TestUtils.readFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SocketHandlerImplTest {
 
     @Test
-    @DisplayName("The method calling RequestDispatcherMock should be com.study.server.SocketHandlerImpl.run")
-    void test1() {
-        Socket clientSocket = new SocketMock("GET");
+    @DisplayName("Should change the number of dispatch() method calls for each HttpRequest")
+    void test1() throws IOException {
+        Socket clientSocket = new SocketMock("GET", "output-sh-test-1");
         RequestDispatcherMock rd = new RequestDispatcherMock();
         SocketHandlerImpl sh = new SocketHandlerImpl(clientSocket, rd);
-        String expectedCallingMethod = "com.study.server.SocketHandlerImpl.run";
+        Integer expectedNumberDispatchMethodCalls = 1;
 
         sh.run();
 
-        assertEquals(expectedCallingMethod, rd.getCallingMethod());
+        InputStream in = clientSocket.getInputStream();
+        HttpRequest request = HttpRequestParser.parse(in);
+        Integer numberDispatchMethodCalls = rd.verifyRequest(request);
+
+        assertEquals(expectedNumberDispatchMethodCalls, numberDispatchMethodCalls);
+
+        expectedNumberDispatchMethodCalls = 2;
+        rd.dispatch(request);
+        numberDispatchMethodCalls = rd.verifyRequest(request);
+
+        assertEquals(expectedNumberDispatchMethodCalls, numberDispatchMethodCalls);
+
+        rd.clearMock();
+        expectedNumberDispatchMethodCalls = 1;
+        rd.dispatch(request);
+        numberDispatchMethodCalls = rd.verifyRequest(request);
+
+        assertEquals(expectedNumberDispatchMethodCalls, numberDispatchMethodCalls);
     }
 
     @Test
     @DisplayName("Should pass expected HttpResponse to OutputStream")
     void test2() throws Exception {
-        Socket clientSocket = new SocketMock("GET");
+        Socket clientSocket = new SocketMock("GET", "output-sh-test-2");
         RequestDispatcher rd = new RequestDispatcherMock();
         SocketHandlerImpl sh = new SocketHandlerImpl(clientSocket, rd);
 
-        HttpRequest requestMock = HttpRequestParser.parse(TestUtils.readFile("GET"));
+        HttpRequest requestMock = HttpRequestParser.parse(readFile("GET"));
         HttpResponse expectedResponse = rd.dispatch(requestMock);
 
         sh.run();
 
-        File file = new File(System.getProperty("user.dir") + "\\src\\test\\resources\\output");
-        var in = new FileInputStream(file);
+        var in = readFile("output-sh-test-2");
         HttpResponse response = HttpResponseParser.parse(in);
 
         assertEquals(expectedResponse, response);
@@ -58,7 +73,7 @@ class SocketHandlerImplTest {
     @Test
     @DisplayName("Should pass HttpResponse with statusCode 500 to OutputStream if the HttpRequest is incorrect")
     void test3() throws Exception {
-        Socket clientSocket = new SocketMock("bad1");
+        Socket clientSocket = new SocketMock("bad1", "output-sh-test-3");
         RequestDispatcher rd = new RequestDispatcherMock();
         SocketHandlerImpl sh = new SocketHandlerImpl(clientSocket, rd);
         var expectedResponseLine = "HTTP/1.1 500 Unable to parse request\r\n\r\n";
@@ -71,8 +86,7 @@ class SocketHandlerImplTest {
     }
 
     private String getResponseLineFromFile() throws IOException {
-        File file = new File(System.getProperty("user.dir") + "\\src\\test\\resources\\output");
-        var in = new FileInputStream(file);
+        var in = readFile("output-sh-test-3");
         var br = new BufferedReader(new InputStreamReader(in));
         var sb = new StringBuilder();
         var curLine = br.readLine();

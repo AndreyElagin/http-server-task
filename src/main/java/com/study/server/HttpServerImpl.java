@@ -12,9 +12,9 @@ public class HttpServerImpl implements HttpServer {
     private boolean isStopped = false;
     private ServerSocket serverSocket = null;
     private ExecutorService executor;
-    private SocketHandlerFactory socketHandlerFactory;
+    private SocketHandlerFactoryImpl socketHandlerFactory;
 
-    public HttpServerImpl(ServerConfiguration config, SocketHandlerFactory shf) {
+    public HttpServerImpl(ServerConfiguration config, SocketHandlerFactoryImpl shf) {
         port = config.getPort();
         poolSize = config.getPoolSize();
         executor = Executors.newFixedThreadPool(poolSize);

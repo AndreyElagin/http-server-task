@@ -14,7 +14,7 @@ public class Main {
         Set<ControllerImpl> controllers = getControllers(mappings);
 
         RequestDispatcher requestDispatcher = new RequestDispatcherImpl(controllers);
-        SocketHandlerFactory socketHandlerFactory = new SocketHandlerFactory(requestDispatcher);
+        SocketHandlerFactoryImpl socketHandlerFactory = new SocketHandlerFactoryImpl(requestDispatcher);
 
 
         HttpServerImpl server = new HttpServerImpl(config, socketHandlerFactory);

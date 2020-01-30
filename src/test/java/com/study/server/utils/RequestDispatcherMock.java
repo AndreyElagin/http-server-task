@@ -5,26 +5,31 @@ import com.study.server.http.HttpRequest;
 import com.study.server.http.HttpResponse;
 import com.study.server.http.StatusCode;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class RequestDispatcherMock implements RequestDispatcher {
-    static String methodName;
-    static String className;
+    private final Map<HttpRequest, Integer> counts = new HashMap<>();
 
     public RequestDispatcherMock() {
     }
 
     @Override
     public HttpResponse dispatch(HttpRequest request) {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        methodName = stackTrace[2].getMethodName();
-        className = stackTrace[2].getClassName();
+        if (counts.get(request) == null) {
+            counts.put(request, 1);
+        } else {
+            var i = counts.get(request);
+            ++i;
+            counts.put(request, i);
+        }
 
         final Map<String, String> headers = Map.of(
                 "Server", "Apache",
                 "Content-Language", "ru",
                 "Content-Type", "text/html; charset=utf-8"
         );
+
         final String body = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -39,14 +44,19 @@ public class RequestDispatcherMock implements RequestDispatcher {
                 "</body>\n" +
                 "</html>";
         HttpResponse.ResponseBuilder builder = new HttpResponse.ResponseBuilder();
-        builder.setProtocol("HTTP/1.1")
+
+        return builder.setProtocol("HTTP/1.1")
                 .setStatusCode(StatusCode._200.toString())
                 .setHeaders(headers)
-                .setBody(body);
-        return new HttpResponse(builder);
+                .setBody(body)
+                .build();
     }
 
-    public String getCallingMethod() {
-        return className + "." + methodName;
+    public Integer verifyRequest(HttpRequest request) {
+        return counts.get(request);
+    }
+
+    public void clearMock() {
+        counts.clear();
     }
 }

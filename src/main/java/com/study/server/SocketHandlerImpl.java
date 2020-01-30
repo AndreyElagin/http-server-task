@@ -1,20 +1,17 @@
 package com.study.server;
 
 import com.study.server.exceptions.BadRequestException;
-import com.study.server.http.HttpRequest;
 import com.study.server.http.HttpRequestParser;
-import com.study.server.http.HttpResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Map;
 
 public class SocketHandlerImpl implements SocketHandler, Runnable {
-    private InputStream in;
-    private OutputStream out;
-    private RequestDispatcher requestDispatcher;
+    private final InputStream in;
+    private final OutputStream out;
+    private final RequestDispatcher requestDispatcher;
 
     public SocketHandlerImpl(Socket clientSocket, RequestDispatcher requestDispatcher) {
         this.requestDispatcher = requestDispatcher;
@@ -22,16 +19,17 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
             this.in = clientSocket.getInputStream();
             this.out = clientSocket.getOutputStream();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Can't read clientSocket");
         }
     }
 
     @Override
     public void run() {
         try {
-            HttpRequest request = HttpRequestParser.parse(in);
-            HttpResponse response = requestDispatcher.dispatch(request);
-            sendResponse(response);
+            var request = HttpRequestParser.parse(in);
+            var response = requestDispatcher.dispatch(request);
+            var preparedResponse = response.getPreparedResponse();
+            out.write(preparedResponse);
 
             out.close();
             in.close();
@@ -49,27 +47,5 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
     private void respond(int statusCode, String msg, OutputStream out) throws IOException {
         String responseLine = "HTTP/1.1 " + statusCode + " " + msg + "\r\n\r\n";
         out.write(responseLine.getBytes());
-    }
-
-    private void sendResponse(HttpResponse response) {
-        String protocol = response.getProtocol();
-        String statusCode = response.getStatusCode();
-        Map<String, String> headers = response.getHeaders();
-        String body = response.getBody();
-        try {
-            out.write((protocol + " " + statusCode + "\r\n").getBytes());
-
-            for (String headerName : headers.keySet()) {
-                out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
-            }
-
-            out.write("\r\n".getBytes());
-
-            if (body != null) {
-                out.write(body.getBytes());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

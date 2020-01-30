@@ -11,9 +11,11 @@ import static com.study.server.utils.TestUtils.readFile;
 
 public class SocketMock extends Socket {
     private final String requestFileName;
+    private final String outputFileName;
 
-    public SocketMock(String requestFileName) {
+    public SocketMock(String requestFileName, String outputFileName) {
         this.requestFileName = requestFileName;
+        this.outputFileName = outputFileName;
     }
 
     @Override
@@ -23,7 +25,8 @@ public class SocketMock extends Socket {
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        File responseFileName = new File(System.getProperty("user.dir") + "\\src\\test\\resources\\output");
+        File responseFileName = new File(System.getProperty("user.dir") +
+                "/src/test/resources/" + outputFileName);
         responseFileName.delete();
         OutputStream os = new FileOutputStream(responseFileName) {
 

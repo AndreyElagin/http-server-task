@@ -1,5 +1,6 @@
 package com.study.server.http;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -9,11 +10,11 @@ public class HttpResponse {
     private final Map<String, String> headers;
     private final String body;
 
-    public HttpResponse(ResponseBuilder builder) {
-        protocol = builder.protocol;
-        statusCode = builder.statusCode;
-        headers = builder.headers;
-        body = builder.body;
+    public HttpResponse(String protocol, String statusCode, Map<String, String> headers, String body) {
+        this.protocol = protocol;
+        this.statusCode = statusCode;
+        this.headers = headers;
+        this.body = body;
     }
 
     public String getProtocol() {
@@ -30,6 +31,15 @@ public class HttpResponse {
 
     public String getBody() {
         return body;
+    }
+
+    public byte[] getPreparedResponse() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(protocol).append(" ").append(statusCode).append("\r\n");
+        headers.forEach((k, v) -> sb.append(k).append(": ").append(v).append("\r\n"));
+        sb.append("\r\n");
+        sb.append(body);
+        return sb.toString().getBytes();
     }
 
     @Override
@@ -50,10 +60,10 @@ public class HttpResponse {
     }
 
     public static class ResponseBuilder {
-        private String protocol;
-        private String statusCode;
-        private Map<String, String> headers;
-        private String body;
+        private String protocol = "HTTP/1.1";
+        private String statusCode = StatusCode._400.toString();
+        private Map<String, String> headers = Collections.emptyMap();
+        private String body = "";
 
         public ResponseBuilder() {
         }
@@ -79,7 +89,7 @@ public class HttpResponse {
         }
 
         public HttpResponse build() {
-            return new HttpResponse(this);
+            return new HttpResponse(protocol, statusCode, headers, body);
         }
     }
 }
