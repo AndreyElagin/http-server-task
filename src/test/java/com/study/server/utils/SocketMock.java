@@ -1,21 +1,18 @@
 package com.study.server.utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.study.server.http.HttpResponse;
+
+import java.io.*;
 import java.net.Socket;
 
 import static com.study.server.utils.TestUtils.readFile;
 
 public class SocketMock extends Socket {
     private final String requestFileName;
-    private final String outputFileName;
+    private ByteArrayOutputStream os;
 
-    public SocketMock(String requestFileName, String outputFileName) {
+    public SocketMock(String requestFileName) {
         this.requestFileName = requestFileName;
-        this.outputFileName = outputFileName;
     }
 
     @Override
@@ -25,16 +22,21 @@ public class SocketMock extends Socket {
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        File responseFileName = new File(System.getProperty("user.dir") +
-                "/src/test/resources/" + outputFileName);
-        responseFileName.delete();
-        OutputStream os = new FileOutputStream(responseFileName) {
-
-            @Override
-            public void write(int b) throws IOException {
-            }
-        };
-
-        return os;
+        return new ByteArrayOutputStream();
     }
+
+    public boolean verifyResponse(HttpResponse expectedResponse) {
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+        HttpResponse response = HttpResponseParser.parse(is);
+
+        return expectedResponse.equals(response);
+    }
+
+//    public Integer verifyRequest(HttpRequest request) {
+//        return counts.get(request);
+//    }
+//
+//    public void clearMock() {
+//        counts.clear();
+//    }
 }

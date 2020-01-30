@@ -2,6 +2,7 @@ package com.study.server;
 
 import com.study.server.exceptions.BadRequestException;
 import com.study.server.http.HttpRequestParser;
+import com.study.server.http.StatusCode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +36,7 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
             in.close();
         } catch (BadRequestException e) {
             try {
-                respond(500, "Unable to parse request", out);
+                respond(StatusCode._400.toString(), out);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -44,8 +45,8 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
         }
     }
 
-    private void respond(int statusCode, String msg, OutputStream out) throws IOException {
-        String responseLine = "HTTP/1.1 " + statusCode + " " + msg + "\r\n\r\n";
+    private void respond(String statusCode, OutputStream out) throws IOException {
+        String responseLine = "HTTP/1.1 " + statusCode + "\r\n\r\n";
         out.write(responseLine.getBytes());
     }
 }

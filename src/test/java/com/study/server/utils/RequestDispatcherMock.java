@@ -25,24 +25,11 @@ public class RequestDispatcherMock implements RequestDispatcher {
         }
 
         final Map<String, String> headers = Map.of(
-                "Server", "Apache",
-                "Content-Language", "ru",
-                "Content-Type", "text/html; charset=utf-8"
+                "Server", "Apache"
         );
 
-        final String body = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "    <meta charset=\"UTF-8\">\n" +
-                "    <link rel=\"stylesheet\" href=\"css/bar.css\">\n" +
-                "    <link rel=\"stylesheet\" href=\"css/foo.css\">\n" +
-                "    <title>Food</title>\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "<p>Food</p>\n" +
-                "<script src=\"js/script.js\"></script>\n" +
-                "</body>\n" +
-                "</html>";
+        final String body = "HTML\n" +
+                "it's cool";
         HttpResponse.ResponseBuilder builder = new HttpResponse.ResponseBuilder();
 
         return builder.setProtocol("HTTP/1.1")
