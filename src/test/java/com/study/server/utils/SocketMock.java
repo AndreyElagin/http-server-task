@@ -2,14 +2,21 @@ package com.study.server.utils;
 
 import com.study.server.http.HttpResponse;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.study.server.utils.TestUtils.readFile;
 
 public class SocketMock extends Socket {
     private final String requestFileName;
     private ByteArrayOutputStream os;
+    private final Map<String, Integer> counts = new HashMap<>();
 
     public SocketMock(String requestFileName) {
         this.requestFileName = requestFileName;
@@ -17,12 +24,34 @@ public class SocketMock extends Socket {
 
     @Override
     public InputStream getInputStream() throws IOException {
+        byte[] input = readFile(requestFileName).readAllBytes();
+        String requestLine = getStringFromBytesArray(input);
+
+        if (counts.get(requestLine) == null) {
+            counts.put(requestLine, 1);
+        } else {
+            var i = counts.get(requestLine);
+            ++i;
+            counts.put(requestLine, i);
+        }
+
         return readFile(requestFileName);
     }
 
+    private String getStringFromBytesArray(byte[] input) {
+        StringBuilder sb = new StringBuilder();
+
+        for (byte b : input) {
+            sb.append(b).append("\r\n");
+        }
+
+        return sb.toString();
+    }
+
     @Override
-    public OutputStream getOutputStream() throws IOException {
-        return new ByteArrayOutputStream();
+    public OutputStream getOutputStream() {
+        os = new ByteArrayOutputStream();
+        return os;
     }
 
     public boolean verifyResponse(HttpResponse expectedResponse) {
@@ -32,11 +61,15 @@ public class SocketMock extends Socket {
         return expectedResponse.equals(response);
     }
 
-//    public Integer verifyRequest(HttpRequest request) {
-//        return counts.get(request);
-//    }
-//
-//    public void clearMock() {
-//        counts.clear();
-//    }
+    public Integer verifyRequest(InputStream is) throws IOException {
+        byte[] input = is.readAllBytes();
+        String requestLine = getStringFromBytesArray(input);
+
+        return counts.get(requestLine);
+    }
+
+    public void clearMock() {
+        counts.clear();
+        os = null;
+    }
 }

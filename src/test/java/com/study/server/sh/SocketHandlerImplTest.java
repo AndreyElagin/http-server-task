@@ -18,38 +18,83 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SocketHandlerImplTest {
 
     @Test
-    @DisplayName("Should change the number of dispatch() method calls for each HttpRequest")
-    void test1() throws IOException {
+    @DisplayName("Should change the number of dispatch() method calls")
+    void dispatch1() throws IOException {
         var socketMock = new SocketMock("GET");
         var rd = new RequestDispatcherMock();
         var sh = new SocketHandlerImpl(socketMock, rd);
-        Integer expectedNumberDispatchMethodCalls = 1;
+        Integer expectedDispatchCalls1 = 1;
+        Integer expectedDispatchCalls2 = 2;
 
         sh.run();
 
         var in = socketMock.getInputStream();
         var request = HttpRequestParser.parse(in);
-        Integer numberDispatchMethodCalls = rd.verifyRequest(request);
+        Integer dispatchCalls = rd.verifyRequest(request);
 
-        assertEquals(expectedNumberDispatchMethodCalls, numberDispatchMethodCalls);
+        assertEquals(expectedDispatchCalls1, dispatchCalls);
 
-        expectedNumberDispatchMethodCalls = 2;
         rd.dispatch(request);
-        numberDispatchMethodCalls = rd.verifyRequest(request);
+        dispatchCalls = rd.verifyRequest(request);
 
-        assertEquals(expectedNumberDispatchMethodCalls, numberDispatchMethodCalls);
+        assertEquals(expectedDispatchCalls2, dispatchCalls);
+    }
+
+    @Test
+    @DisplayName("Should change the number of dispatch () method calls for different HttpRequest")
+    void dispatch2() throws IOException {
+        var socketMockGet = new SocketMock("GET");
+        var rd = new RequestDispatcherMock();
+        var shGet = new SocketHandlerImpl(socketMockGet, rd);
+
+        var socketMockPut = new SocketMock("PUT");
+        var shPut = new SocketHandlerImpl(socketMockPut, rd);
+
+        Integer expectedDispatchCallsGet = 1;
+        Integer expectedDispatchCallsPut = 1;
+
+        shGet.run();
+        shPut.run();
+
+        var in1 = socketMockGet.getInputStream();
+        var requestGet = HttpRequestParser.parse(in1);
+        Integer dispatchCalls = rd.verifyRequest(requestGet);
+
+        assertEquals(expectedDispatchCallsGet, dispatchCalls);
+
+        var in2 = socketMockGet.getInputStream();
+        var requestPut = HttpRequestParser.parse(in2);
+        dispatchCalls = rd.verifyRequest(requestPut);
+
+        assertEquals(expectedDispatchCallsPut, dispatchCalls);
+    }
+
+    @Test
+    @DisplayName("Should clear mock")
+    void dispatch3() throws IOException {
+        var socketMock = new SocketMock("GET");
+        var rd = new RequestDispatcherMock();
+        var sh = new SocketHandlerImpl(socketMock, rd);
+        Integer expectedDispatchCalls1 = 1;
+        Integer expectedDispatchCalls2 = null;
+
+        sh.run();
+
+        var in = socketMock.getInputStream();
+        var request = HttpRequestParser.parse(in);
+        Integer dispatchCalls = rd.verifyRequest(request);
+
+        assertEquals(expectedDispatchCalls1, dispatchCalls);
 
         rd.clearMock();
-        expectedNumberDispatchMethodCalls = 1;
-        rd.dispatch(request);
-        numberDispatchMethodCalls = rd.verifyRequest(request);
+        dispatchCalls = rd.verifyRequest(request);
 
-        assertEquals(expectedNumberDispatchMethodCalls, numberDispatchMethodCalls);
+        assertEquals(expectedDispatchCalls2, dispatchCalls);
     }
 
     @Test
     @DisplayName("Should pass expected HttpResponse to OutputStream")
-    void test2() {
+    void output1() {
         var socketMock = new SocketMock("GET");
         var rd = new RequestDispatcherMock();
         var sh = new SocketHandlerImpl(socketMock, rd);
@@ -60,6 +105,40 @@ class SocketHandlerImplTest {
         sh.run();
 
         assertTrue(socketMock.verifyResponse(response));
+    }
+
+    @Test
+    @DisplayName("Should verify request")
+    void output2() throws IOException {
+        var socketMock = new SocketMock("GET");
+        var rd = new RequestDispatcherMock();
+        var sh = new SocketHandlerImpl(socketMock, rd);
+        Integer expectedGISCalls = 1;
+
+        sh.run();
+
+        Integer GISCalls = socketMock.verifyRequest(readFile("GET"));
+        assertEquals(expectedGISCalls, GISCalls);
+    }
+
+    @Test
+    @DisplayName("Should clear mock")
+    void output3() throws IOException {
+        var socketMock = new SocketMock("GET");
+        var rd = new RequestDispatcherMock();
+        var sh = new SocketHandlerImpl(socketMock, rd);
+        Integer expectedGISCalls1 = 1;
+        Integer expectedGISCalls2 = null;
+
+        sh.run();
+
+        Integer GISCalls1 = socketMock.verifyRequest(readFile("GET"));
+        assertEquals(expectedGISCalls1, GISCalls1);
+
+        socketMock.clearMock();
+
+        Integer GISCalls2 = socketMock.verifyRequest(readFile("GET"));
+        assertEquals(expectedGISCalls2, GISCalls2);
     }
 
     @Test
