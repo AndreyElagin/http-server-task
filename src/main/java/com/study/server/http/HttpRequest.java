@@ -14,8 +14,14 @@ public class HttpRequest {
     private final Map<String, String> headers;
     private final String body;
 
-    private HttpRequest(String method, String path, Map<String, String> queryParameters, String protocol,
-                        String host, String port, Map<String, String> headers, String body) {
+    private HttpRequest(String method,
+                        String path,
+                        Map<String, String> queryParameters,
+                        String protocol,
+                        String host,
+                        String port,
+                        Map<String, String> headers,
+                        String body) {
         this.method = method;
         this.path = path;
         this.queryParameters = queryParameters;
@@ -78,7 +84,7 @@ public class HttpRequest {
         return Objects.hash(method, path, queryParameters, protocol, host, port, headers, body);
     }
 
-    public static class RequestBuilder {
+    public static class Builder {
         private String method;
         private String path = "/";
         private String host;
@@ -88,45 +94,45 @@ public class HttpRequest {
         private String port = "80";
         private String body = "";
 
-        public RequestBuilder() {
+        public Builder() {
         }
 
-        public RequestBuilder setMethod(String method) {
+        public Builder setMethod(String method) {
             this.method = method;
             return this;
         }
 
-        public RequestBuilder setPath(String path) {
+        public Builder setPath(String path) {
             this.path = path;
             return this;
         }
 
-        public RequestBuilder setHost(String host) {
+        public Builder setHost(String host) {
             this.host = host;
             return this;
         }
 
-        public RequestBuilder setProtocol(String protocol) {
+        public Builder setProtocol(String protocol) {
             this.protocol = protocol;
             return this;
         }
 
-        public RequestBuilder setQueryParameters(Map<String, String> queryParameters) {
+        public Builder setQueryParameters(Map<String, String> queryParameters) {
             this.queryParameters = queryParameters;
             return this;
         }
 
-        public RequestBuilder setHeaders(Map<String, String> headers) {
+        public Builder setHeaders(Map<String, String> headers) {
             this.headers = headers;
             return this;
         }
 
-        public RequestBuilder setPort(String port) {
+        public Builder setPort(String port) {
             this.port = port;
             return this;
         }
 
-        public RequestBuilder setBody(String body) {
+        public Builder setBody(String body) {
             this.body = body;
             return this;
         }

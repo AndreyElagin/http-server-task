@@ -1,12 +1,10 @@
 package com.study.server.utils;
 
+import com.study.server.http.HttpRequest;
+import com.study.server.http.HttpRequestParser;
 import com.study.server.http.HttpResponse;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,20 +36,14 @@ public class SocketMock extends Socket {
         return readFile(requestFileName);
     }
 
-    private String getStringFromBytesArray(byte[] input) {
-        StringBuilder sb = new StringBuilder();
-
-        for (byte b : input) {
-            sb.append(b).append("\r\n");
-        }
-
-        return sb.toString();
-    }
-
     @Override
     public OutputStream getOutputStream() {
         os = new ByteArrayOutputStream();
         return os;
+    }
+
+    public HttpRequest getInterceptedRequests() throws IOException {
+        return HttpRequestParser.parse(getInputStream());
     }
 
     public boolean verifyResponse(HttpResponse expectedResponse) {
@@ -71,5 +63,15 @@ public class SocketMock extends Socket {
     public void clearMock() {
         counts.clear();
         os = null;
+    }
+
+    private String getStringFromBytesArray(byte[] input) {
+        StringBuilder sb = new StringBuilder();
+
+        for (byte b : input) {
+            sb.append(b).append("\r\n");
+        }
+
+        return sb.toString();
     }
 }

@@ -33,7 +33,7 @@ public class HttpResponse {
         return body;
     }
 
-    public byte[] getPreparedResponse() {
+    public byte[] toBytes() {
         StringBuilder sb = new StringBuilder();
         sb.append(protocol).append(" ").append(statusCode).append("\r\n");
         headers.forEach((k, v) -> sb.append(k).append(": ").append(v).append("\r\n"));
@@ -59,31 +59,31 @@ public class HttpResponse {
         return Objects.hash(protocol, statusCode, headers, body);
     }
 
-    public static class ResponseBuilder {
+    public static class Builder {
         private String protocol = "HTTP/1.1";
         private String statusCode = StatusCode._400.toString();
         private Map<String, String> headers = Collections.emptyMap();
         private String body = "";
 
-        public ResponseBuilder() {
+        public Builder() {
         }
 
-        public ResponseBuilder setProtocol(String protocol) {
+        public Builder setProtocol(String protocol) {
             this.protocol = protocol;
             return this;
         }
 
-        public ResponseBuilder setStatusCode(String statusCode) {
+        public Builder setStatusCode(String statusCode) {
             this.statusCode = statusCode;
             return this;
         }
 
-        public ResponseBuilder setHeaders(Map<String, String> headers) {
+        public Builder setHeaders(Map<String, String> headers) {
             this.headers = headers;
             return this;
         }
 
-        public ResponseBuilder setBody(String body) {
+        public Builder setBody(String body) {
             this.body = body;
             return this;
         }

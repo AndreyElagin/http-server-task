@@ -17,8 +17,8 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
     public SocketHandlerImpl(Socket clientSocket, RequestDispatcher requestDispatcher) {
         this.requestDispatcher = requestDispatcher;
         try {
-            this.in = clientSocket.getInputStream();
-            this.out = clientSocket.getOutputStream();
+            in = clientSocket.getInputStream();
+            out = clientSocket.getOutputStream();
         } catch (IOException e) {
             throw new RuntimeException("Can't read clientSocket");
         }
@@ -27,10 +27,7 @@ public class SocketHandlerImpl implements SocketHandler, Runnable {
     @Override
     public void run() {
         try {
-            var request = HttpRequestParser.parse(in);
-            var response = requestDispatcher.dispatch(request);
-            var preparedResponse = response.getPreparedResponse();
-            out.write(preparedResponse);
+            out.write(requestDispatcher.dispatch(HttpRequestParser.parse(in)).toBytes());
 
             out.close();
             in.close();

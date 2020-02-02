@@ -6,11 +6,11 @@ import com.study.server.http.StatusCode;
 
 import java.util.Map;
 
-public class ControllerImpl implements Controller {
+public class FileController implements Controller {
     String host;
     String path;
 
-    public ControllerImpl(String host, String path) {
+    public FileController(String host, String path) {
         this.host = host;
         this.path = path;
     }
@@ -24,7 +24,7 @@ public class ControllerImpl implements Controller {
 
     @Override
     public HttpResponse handle(HttpRequest request) {
-        HttpResponse.ResponseBuilder builder = new HttpResponse.ResponseBuilder();
+        HttpResponse.Builder builder = new HttpResponse.Builder();
         HttpResponse response = builder.setProtocol("HTTP/1.1")
                 .setStatusCode(StatusCode._404.toString())
                 .setHeaders(Map.of())

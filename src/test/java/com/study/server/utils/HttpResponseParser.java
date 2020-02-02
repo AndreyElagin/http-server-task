@@ -24,7 +24,7 @@ public class HttpResponseParser {
 
     public static HttpResponse parse(InputStream in) {
         var br = new BufferedReader(new InputStreamReader(in));
-        var builder = new HttpResponse.ResponseBuilder();
+        var builder = new HttpResponse.Builder();
 
         String curLine = null;
         try {

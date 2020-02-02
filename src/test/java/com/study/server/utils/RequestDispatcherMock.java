@@ -30,7 +30,7 @@ public class RequestDispatcherMock implements RequestDispatcher {
 
         final String body = "HTML\n" +
                 "it's cool";
-        HttpResponse.ResponseBuilder builder = new HttpResponse.ResponseBuilder();
+        HttpResponse.Builder builder = new HttpResponse.Builder();
 
         return builder.setProtocol("HTTP/1.1")
                 .setStatusCode(StatusCode._200.toString())
@@ -39,7 +39,7 @@ public class RequestDispatcherMock implements RequestDispatcher {
                 .build();
     }
 
-    public Integer verifyRequest(HttpRequest request) {
+    public int verifyRequest(HttpRequest request) {
         return counts.get(request);
     }
 

@@ -18,7 +18,7 @@ public class HttpRequestParser {
 
     public static HttpRequest parse(InputStream in) {
         var br = new BufferedReader(new InputStreamReader(in));
-        var builder = new HttpRequest.RequestBuilder();
+        var builder = new HttpRequest.Builder();
 
         try {
             var curLine = br.readLine();
